@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "orm-performance-test"
+version = "0.1.0"
+description = "Performance comparison between SQLAlchemy v2, Tortoise ORM, and EdgeDB with FastAPI"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+
+# SQLAlchemy v2 dependencies
+sqlalchemy = "^2.0.23"
+greenlet = "^3.0.1"
+asyncpg = "^0.29.0"
+
+# Tortoise ORM dependencies
+tortoise-orm = {extras = ["asyncpg"], version = "^0.20.0"}
+
+# EdgeDB dependencies
+edgedb = "^1.7.0"
+
+# Testing dependencies
+locust = "^2.17.0"
+httpx = "^0.25.2"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+
+# Additional utilities
+pydantic = "^2.5.0"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.isort]
+profile = "black" 
