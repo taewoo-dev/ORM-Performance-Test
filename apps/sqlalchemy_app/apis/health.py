@@ -1,0 +1,11 @@
+from __future__ import annotations
+
+from fastapi import APIRouter
+
+router = APIRouter()
+
+
+@router.get("/health")
+async def health_check():
+    """헬스체크 엔드포인트"""
+    return {"status": "ok", "orm": "sqlalchemy_v2"} 
