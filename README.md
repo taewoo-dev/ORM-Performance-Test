@@ -2,154 +2,75 @@
 
 FastAPI와 세 가지 ORM(SQLAlchemy v2, Tortoise ORM, EdgeDB)의 성능을 비교하는 프로젝트입니다.
 
-## 📊 **현재 구현 상황** (2025-07-24 업데이트)
+## 🎯 **프로젝트 목표**
+
+- **동일한 Clean Architecture**로 3개 ORM 구현
+- **실제 운영 환경** 시나리오 기반 성능 비교
+- **현대적 기술 스택** 활용 (SQLAlchemy v2, Pydantic v2, EdgeDB)
+
+## 📊 **현재 구현 상황** (2025-07-25 업데이트)
 
 ### ✅ **완료된 ORM**
 
-#### 🔥 **SQLAlchemy v2** 
-- **상태**: 완전 구현 및 테스트 완료
-- **데이터베이스**: PostgreSQL (포트 5432)
-- **서버**: localhost:8001
-- **특징**: 
-  - Greenlet 기반 sync-to-async 변환
-  - `created_at` 필드 제거로 깔끔한 구조
-  - Connection Pool: 5, Max Overflow: 10
-- **성능**: 벤치마크 평균 **2.8ms**, 초당 **357 변환**
+| ORM | 개발 완료도 | 아키텍처 | 기술 스택 | 상태 |
+|-----|-------------|----------|-----------|------|
+| **SQLAlchemy v2** | **100%** | ✅ Clean Architecture | Mapped[] + DeclarativeBase | ✅ 준비 완료 |
+| **Tortoise ORM** | **100%** | ✅ Clean Architecture | 네이티브 비동기 | ✅ 준비 완료 |
+| **EdgeDB** | **100%** | ✅ Clean Architecture | EdgeQL + 타입 안전성 | ✅ 준비 완료 |
 
-#### 🚀 **Tortoise ORM**
-- **상태**: 완전 구현 및 테스트 완료  
-- **데이터베이스**: PostgreSQL (포트 5432, 공유)
-- **서버**: localhost:8002
-- **특징**: 
-  - 네이티브 비동기 ORM
-  - `created_at` 필드 제거로 timezone 문제 해결
-  - Connection Pool: 5-20
-- **성능**: 벤치마크 평균 **2.4ms**, 초당 **412 쿼리**
+> **현황**: 모든 3개 ORM이 **동일한 아키텍처**로 완성되어 **성능 비교 준비 완료**!
 
-### ⚠️ **진행 중인 ORM**
+## 🏗️ **공통 아키텍처**
 
-#### 🔄 **EdgeDB**
-- **상태**: 서버 실행 중, 스키마 생성 실패
-- **데이터베이스**: EdgeDB (포트 5656)
-- **서버**: localhost:8003
-- **문제**: TLS 인증서 문제는 해결했으나 스키마(User/Post 타입) 생성 실패
-- **진행률**: 70% (연결 성공, 스키마 생성 필요)
-
-## 🏆 **현재 성능 비교 결과**
-
-| ORM | 평균 응답시간 | 초당 처리량 | 상태 |
-|-----|-------------|------------|------|
-| **Tortoise ORM** | **2.4ms** | **412 QPS** | ✅ 완료 |
-| **SQLAlchemy v2** | **2.8ms** | **357 QPS** | ✅ 완료 |
-| **EdgeDB** | - | - | ⚠️ 스키마 문제 |
-
-> **결과**: Tortoise ORM이 **약 15% 더 빠른 성능**을 보여줍니다!
-
-## 🎯 **테스트 조건**
-
-- **대상**: P95 응답시간 기준
-- **목표 RPS**: 20
-- **Connection Pool**: 5
-- **Worker 수**: 4
-- **데이터베이스**: PostgreSQL 15 (Docker)
-- **테스트 도구**: Locust
-
-## 📁 **프로젝트 구조**
+모든 앱이 동일한 구조로 구현되어 공정한 성능 비교가 가능합니다:
 
 ```
-orm_test/
-├── apps/
-│   ├── sqlalchemy_app/     # ✅ SQLAlchemy v2 + FastAPI
-│   ├── tortoise_app/       # ✅ Tortoise ORM + FastAPI  
-│   └── edgedb_app/         # ⚠️ EdgeDB + FastAPI (스키마 문제)
-├── tests/
-│   └── locust_tests/       # 🧪 Locust 성능 테스트
-├── scripts/
-│   ├── start_servers.sh    # 🚀 모든 서버 시작
-│   └── stop_servers.sh     # 🛑 모든 서버 종료
-├── PERFORMANCE_TEST_GUIDE.md  # 📖 상세 가이드
-├── QUICK_START.md          # ⚡ 빠른 시작 가이드
-└── README.md               # 📋 이 파일
+각 ORM 앱 구조:
+├── schemas/     # DTO 모델 (Frozen Config + Future Annotations)
+├── apis/        # FastAPI 라우터 분리
+├── services/    # 비즈니스 로직 레이어
+├── models.py    # ORM 모델 정의
+├── database.py  # 데이터베이스 연결 설정
+└── main.py      # 앱 구성 (20-25줄)
 ```
 
-## 🚀 **빠른 시작**
+## 🚀 **기술 스택**
 
-### 1. 환경 설정
-```bash
-# Poetry 설치 및 의존성 설치
-poetry install
-poetry shell
+### **공통 기술**
+- **FastAPI** - 고성능 웹 프레임워크
+- **Pydantic v2** - 데이터 검증 (Frozen Config 적용)
+- **PostgreSQL** - 데이터베이스 (SQLAlchemy, Tortoise 공용)
+- **Python 3.12** - Future Annotations 활용
 
-# Docker로 데이터베이스 시작
-docker run -d --name orm_test_postgres \
-  -e POSTGRES_USER=testuser \
-  -e POSTGRES_PASSWORD=testpass \
-  -e POSTGRES_DB=orm_test \
-  -p 5432:5432 postgres:15
+### **ORM별 특징**
+- **SQLAlchemy v2**: Modern Mapped[] 타입 + async_sessionmaker
+- **Tortoise ORM**: 네이티브 비동기 + Django-like API  
+- **EdgeDB**: 차세대 그래프-관계형 + EdgeQL
+
+## 📖 **문서 가이드**
+
+- **🚀 빠른 시작**: [QUICK_START.md](QUICK_START.md) - 환경 설정 및 서버 실행
+- **📊 성능 테스트**: [PERFORMANCE_TEST_GUIDE.md](PERFORMANCE_TEST_GUIDE.md) - 벤치마크 및 부하 테스트
+
+## 🎊 **개발 성과**
+
+### **코드 품질 개선**
+```
+Before: 거대한 단일 파일 (200+ 줄)
+After:  모듈화된 깔끔한 구조 (20-25 줄)
+
+리팩토링 결과:
+- EdgeDB:     213줄 → 25줄
+- SQLAlchemy: 213줄 → 20줄  
+- Tortoise:   211줄 → 22줄
 ```
 
-### 2. 개별 서버 실행
-```bash
-# SQLAlchemy 서버 (포트 8001)
-poetry run uvicorn apps.sqlalchemy_app.main:app --host 0.0.0.0 --port 8001
-
-# Tortoise ORM 서버 (포트 8002)  
-poetry run uvicorn apps.tortoise_app.main:app --host 0.0.0.0 --port 8002
-
-# EdgeDB 서버 (포트 8003) - 현재 스키마 문제로 API 사용 불가
-poetry run uvicorn apps.edgedb_app.main:app --host 0.0.0.0 --port 8003
-```
-
-### 3. API 테스트 예시
-
-#### SQLAlchemy (완료)
-```bash
-# 사용자 생성
-curl -X POST http://localhost:8001/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Alice Johnson", "email": "alice@example.com"}'
-
-# Greenlet 성능 테스트
-curl http://localhost:8001/benchmark/sync-to-async
-```
-
-#### Tortoise ORM (완료)
-```bash
-# 사용자 생성
-curl -X POST http://localhost:8002/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "David Kim", "email": "david@tortoise.com"}'
-
-# 네이티브 비동기 성능 테스트
-curl http://localhost:8002/benchmark/native-async
-```
-
-## 📈 **성능 테스트 실행**
-
-```bash
-# 자동화된 성능 비교 (SQLAlchemy vs Tortoise ORM)
-cd tests/locust_tests
-python run_performance_test.py
-```
-
-## 🔗 **상세 문서**
-
-- **[📖 성능 테스트 가이드](./PERFORMANCE_TEST_GUIDE.md)**: 상세한 설정 및 분석 방법
-- **[⚡ 빠른 시작 가이드](./QUICK_START.md)**: 5분 내 실행 가이드
-
-## 🎉 **주요 성과**
-
-1. **✅ datetime timezone 문제 해결**: 모든 ORM에서 `created_at` 필드 제거로 호환성 확보
-2. **🏆 성능 비교 완료**: Tortoise ORM > SQLAlchemy v2 (15% 성능 우위)
-3. **🔧 Greenlet 검증**: SQLAlchemy의 sync-to-async 변환 오버헤드 **2.8ms**로 경량 확인
-4. **🌐 Cross-ORM 호환성**: 동일한 PostgreSQL DB에서 모든 데이터 공유 가능
-
-## 🚧 **남은 작업**
-
-- [ ] EdgeDB 스키마 생성 문제 해결
-- [ ] 전체 3개 ORM Locust 성능 테스트 실행
-- [ ] P95 응답시간 기준 최종 성능 분석
+### **현대적 패턴 적용**
+- **SQLAlchemy v2** 완전 적용
+- **Frozen Config** 모든 DTO에 적용
+- **Future Annotations** 타입 안전성 확보
+- **Clean Architecture** 일관성 있는 구조
 
 ---
 
-**Last Updated**: 2025-07-24 | **Status**: SQLAlchemy ✅ Tortoise ✅ EdgeDB ⚠️ # ORM-Performance-Test
+**Ready for Performance Battle!** 🔥
