@@ -13,15 +13,15 @@ fi
 
 # 백그라운드에서 각 서버 실행
 echo "Starting SQLAlchemy server on port 8001..."
-poetry run uvicorn apps.sqlalchemy_app.main:app --host 0.0.0.0 --port 8001 --workers 4 &
+poetry run gunicorn apps.sqlalchemy_app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001 --daemon &
 SQLALCHEMY_PID=$!
 
 echo "Starting Tortoise ORM server on port 8002..."
-poetry run uvicorn apps.tortoise_app.main:app --host 0.0.0.0 --port 8002 --workers 4 &
+poetry run gunicorn apps.tortoise_app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8002 --daemon &
 TORTOISE_PID=$!
 
 echo "Starting EdgeDB server on port 8003..."
-poetry run uvicorn apps.edgedb_app.main:app --host 0.0.0.0 --port 8003 --workers 4 &
+poetry run gunicorn apps.edgedb_app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8003 --daemon &
 EDGEDB_PID=$!
 
 # PID 저장

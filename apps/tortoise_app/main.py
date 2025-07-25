@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from .database import init_tortoise, close_tortoise
-from .apis import health, users, posts, benchmark
+from .apis import health, users, posts
 
 # FastAPI app
 app = FastAPI(title="Tortoise ORM Performance Test")
@@ -12,7 +12,7 @@ app = FastAPI(title="Tortoise ORM Performance Test")
 app.include_router(health.router)
 app.include_router(users.router)
 app.include_router(posts.router)
-app.include_router(benchmark.router)
+
 
 
 @app.on_event("startup")

@@ -1,4 +1,4 @@
-import time
+
 import uuid
 from typing import List, Optional
 
@@ -15,7 +15,6 @@ class UserService:
     
     async def create_user(self, user: UserCreate) -> UserResponse:
         """사용자 생성"""
-        start_time = time.time()
         client = await get_edgedb_client()
         
         # gel CLI로 생성된 insert_user 함수 사용
@@ -25,9 +24,6 @@ class UserService:
             email=user.email,
         )
         
-        creation_time = time.time() - start_time
-        print(f"EdgeDB User Creation - Time: {creation_time:.4f}s")
-        
         return UserResponse(
             id=str(created_user.id),
             name=created_user.name,
@@ -36,7 +32,6 @@ class UserService:
     
     async def get_users(self, skip: int = 0, limit: int = 10) -> List[UserResponse]:
         """사용자 목록 조회"""
-        start_time = time.time()
         client = await get_edgedb_client()
         
         # gel CLI로 생성된 get_users_query 함수 사용
@@ -45,9 +40,6 @@ class UserService:
             skip=skip,
             limit=limit,
         )
-        
-        query_time = time.time() - start_time
-        print(f"EdgeDB Users Query - Time: {query_time:.4f}s, Count: {len(users)}")
         
         return [
             UserResponse(
@@ -59,7 +51,6 @@ class UserService:
     
     async def get_user(self, user_id: str) -> Optional[UserResponse]:
         """단일 사용자 조회"""
-        start_time = time.time()
         client = await get_edgedb_client()
         
         # gel CLI로 생성된 get_user_query 함수 사용
@@ -71,9 +62,6 @@ class UserService:
         if not user:
             return None
         
-        query_time = time.time() - start_time
-        print(f"EdgeDB User Get - Time: {query_time:.4f}s")
-        
         return UserResponse(
             id=str(user.id),
             name=user.name,
@@ -82,7 +70,6 @@ class UserService:
     
     async def get_user_posts(self, user_id: str, skip: int = 0, limit: int = 10) -> List[PostResponse]:
         """사용자의 게시글 조회"""
-        start_time = time.time()
         client = await get_edgedb_client()
         
         # gel CLI로 생성된 get_user_posts_query 함수 사용
@@ -95,9 +82,6 @@ class UserService:
         
         if not result:
             return []
-        
-        query_time = time.time() - start_time
-        print(f"EdgeDB User Posts Query - Time: {query_time:.4f}s, Count: {len(result.posts)}")
         
         return [
             PostResponse(

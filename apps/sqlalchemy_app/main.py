@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from .database import engine
 from .models import Base
-from .apis import health, users, posts, benchmark
+from .apis import health, users, posts
 
 # FastAPI app
 app = FastAPI(title="SQLAlchemy v2 Performance Test")
@@ -13,7 +13,7 @@ app = FastAPI(title="SQLAlchemy v2 Performance Test")
 app.include_router(health.router)
 app.include_router(users.router)
 app.include_router(posts.router)
-app.include_router(benchmark.router)
+
 
 
 @app.on_event("startup")

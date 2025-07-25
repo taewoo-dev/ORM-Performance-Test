@@ -37,10 +37,10 @@ FastAPI와 세 가지 ORM(SQLAlchemy v2, Tortoise ORM, EdgeDB)의 성능을 비�
 ## 🚀 **기술 스택**
 
 ### **공통 기술**
-- **FastAPI** - 고성능 웹 프레임워크
-- **Pydantic v2** - 데이터 검증 (Frozen Config 적용)
+- **FastAPI**
+- **Pydantic v2**
 - **PostgreSQL** - 데이터베이스 (SQLAlchemy, Tortoise 공용)
-- **Python 3.12** - Future Annotations 활용
+
 
 ### **ORM별 특징**
 - **SQLAlchemy v2**: Modern Mapped[] 타입 + async_sessionmaker
@@ -50,7 +50,7 @@ FastAPI와 세 가지 ORM(SQLAlchemy v2, Tortoise ORM, EdgeDB)의 성능을 비�
 ## 📖 **문서 가이드**
 
 - **🚀 빠른 시작**: [QUICK_START.md](QUICK_START.md) - 환경 설정 및 서버 실행
-- **📊 성능 테스트**: [PERFORMANCE_TEST_GUIDE.md](PERFORMANCE_TEST_GUIDE.md) - 벤치마크 및 부하 테스트
+- **📊 성능 테스트**: [PERFORMANCE_RESULTS.md](PERFORMANCE_RESULTS.md) - 벤치마크 및 부하 테스트
 
 ## 🎊 **개발 성과**
 
@@ -64,13 +64,6 @@ After:  모듈화된 깔끔한 구조 (20-25 줄)
 - SQLAlchemy: 213줄 → 20줄  
 - Tortoise:   211줄 → 22줄
 ```
-
-### **현대적 패턴 적용**
-- **SQLAlchemy v2** 완전 적용
-- **Frozen Config** 모든 DTO에 적용
-- **Future Annotations** 타입 안전성 확보
-- **Clean Architecture** 일관성 있는 구조
-
 ---
 
 **Ready for Performance Battle!** 🔥

@@ -20,7 +20,7 @@ class ORMPerformanceTest(HttpUser):
     def detect_orm_type(self):
         """현재 테스트 중인 ORM 타입 감지"""
         try:
-            response = self.client.get("/health")
+            response = self.client.get("/health", name="health_check")
             if response.status_code == 200:
                 return response.json().get("orm", "unknown")
         except:
@@ -43,7 +43,7 @@ class ORMPerformanceTest(HttpUser):
             "email": self.generate_email()
         }
         
-        with self.client.post("/users", json=user_data, catch_response=True) as response:
+        with self.client.post("/users", json=user_data, catch_response=True, name="create_user") as response:
             if response.status_code == 201 or response.status_code == 200:
                 user = response.json()
                 self.created_users.append(user)
@@ -60,7 +60,7 @@ class ORMPerformanceTest(HttpUser):
         skip = random.randint(0, 10)
         limit = random.randint(5, 20)
         
-        with self.client.get(f"/users?skip={skip}&limit={limit}", catch_response=True) as response:
+        with self.client.get(f"/users?skip={skip}&limit={limit}", catch_response=True, name="get_users_list") as response:
             if response.status_code == 200:
                 users = response.json()
                 response.success()
@@ -76,7 +76,7 @@ class ORMPerformanceTest(HttpUser):
         user = random.choice(self.created_users)
         user_id = user["id"]
         
-        with self.client.get(f"/users/{user_id}", catch_response=True) as response:
+        with self.client.get(f"/users/{user_id}", catch_response=True, name="get_user_by_id") as response:
             if response.status_code == 200:
                 response.success()
             elif response.status_code == 404:
@@ -100,7 +100,7 @@ class ORMPerformanceTest(HttpUser):
             "user_id": user["id"]
         }
         
-        with self.client.post("/posts", json=post_data, catch_response=True) as response:
+        with self.client.post("/posts", json=post_data, catch_response=True, name="create_post") as response:
             if response.status_code == 201 or response.status_code == 200:
                 post = response.json()
                 self.created_posts.append(post)
@@ -117,7 +117,7 @@ class ORMPerformanceTest(HttpUser):
         skip = random.randint(0, 10)
         limit = random.randint(5, 15)
         
-        with self.client.get(f"/posts?skip={skip}&limit={limit}", catch_response=True) as response:
+        with self.client.get(f"/posts?skip={skip}&limit={limit}", catch_response=True, name="get_posts_list") as response:
             if response.status_code == 200:
                 posts = response.json()
                 response.success()
@@ -135,7 +135,7 @@ class ORMPerformanceTest(HttpUser):
         skip = random.randint(0, 5)
         limit = random.randint(5, 10)
         
-        with self.client.get(f"/users/{user_id}/posts?skip={skip}&limit={limit}", catch_response=True) as response:
+        with self.client.get(f"/users/{user_id}/posts?skip={skip}&limit={limit}", catch_response=True, name="get_user_posts") as response:
             if response.status_code == 200:
                 response.success()
             elif response.status_code == 404:
@@ -144,33 +144,7 @@ class ORMPerformanceTest(HttpUser):
             else:
                 response.failure(f"Failed to get user posts: {response.status_code}")
 
-    @task(1)  # 가중치 1: 성능 벤치마크 (가끔만 실행)
-    def benchmark_orm_performance(self):
-        """ORM별 성능 벤치마크 테스트"""
-        if self.orm_type == "sqlalchemy_v2":
-            endpoint = "/benchmark/sync-to-async"
-        elif self.orm_type == "tortoise":
-            endpoint = "/benchmark/native-async"
-        elif self.orm_type == "edgedb":
-            endpoint = "/benchmark/edgedb-native"
-        else:
-            return
-        
-        with self.client.get(endpoint, catch_response=True) as response:
-            if response.status_code == 200:
-                benchmark_data = response.json()
-                # 벤치마크 결과를 로그에 출력
-                print(f"\n=== {self.orm_type.upper()} Benchmark Results ===")
-                if "average_conversion_time" in benchmark_data:
-                    print(f"Average Conversion Time: {benchmark_data['average_conversion_time']:.4f}s")
-                    print(f"Conversions per Second: {benchmark_data['conversions_per_second']:.2f}")
-                elif "average_query_time" in benchmark_data:
-                    print(f"Average Query Time: {benchmark_data['average_query_time']:.4f}s")
-                    print(f"Queries per Second: {benchmark_data['queries_per_second']:.2f}")
-                print("=" * 40)
-                response.success()
-            else:
-                response.failure(f"Failed to run benchmark: {response.status_code}")
+
 
 
 class SQLAlchemyUser(ORMPerformanceTest):
