@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from tortoise.models import Model
 from tortoise import fields
+
 
 class User(Model):
     id = fields.IntField(pk=True)
@@ -7,10 +10,11 @@ class User(Model):
     email = fields.CharField(max_length=255, unique=True, index=True)
     
     # Reverse foreign key
-    posts: fields.ReverseRelation["Post"]
+    posts: fields.ReverseRelation[Post]
     
     class Meta:
         table = "users"
+
 
 class Post(Model):
     id = fields.IntField(pk=True)

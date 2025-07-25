@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tortoise import Tortoise
 import os
 
@@ -26,15 +28,17 @@ TORTOISE_ORM = {
             "default_connection": "default",
         }
     },
-    "use_tz": True,  # 또는 False
+    "use_tz": True,
     "timezone": "UTC",
 }
 
-async def init_tortoise():
+
+async def init_tortoise() -> None:
     """Tortoise ORM 초기화"""
     await Tortoise.init(config=TORTOISE_ORM)
     await Tortoise.generate_schemas()
 
-async def close_tortoise():
+
+async def close_tortoise() -> None:
     """Tortoise ORM 종료"""
     await Tortoise.close_connections() 
