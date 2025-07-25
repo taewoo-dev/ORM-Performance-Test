@@ -1,10 +1,10 @@
 module default {
     type User {
-        required property name -> str {
+        required name -> str {
             constraint max_len_value(100);
         };
-        required property email -> str {
-            constraint exclusive;
+        required email -> str {
+            constraint exclusive; # unique
             constraint max_len_value(255);
         };
 
@@ -13,10 +13,10 @@ module default {
     }
 
     type Post {
-        required property title -> str {
+        required title -> str {
             constraint max_len_value(255);
         };
-        required property content -> str;
+        required content -> str;
         required link user -> User;
     }
-} 
+}

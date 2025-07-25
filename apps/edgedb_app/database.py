@@ -1,16 +1,16 @@
-import edgedb
+import gel
 import os
 from typing import Optional
 
 # EdgeDB connection pool
-_client: Optional[edgedb.AsyncIOClient] = None
+_client: Optional[gel.AsyncIOClient] = None
 
-async def get_edgedb_client() -> edgedb.AsyncIOClient:
+async def get_edgedb_client() -> gel.AsyncIOClient:
     """EdgeDB 클라이언트 생성 또는 기존 클라이언트 반환"""
     global _client
     if _client is None:
         # EdgeDB 연결 설정
-        _client = edgedb.create_async_client(
+        _client = gel.create_async_client(
             # Docker EdgeDB 인스턴스 연결
             host="localhost",
             port=5656,
