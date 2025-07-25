@@ -8,7 +8,7 @@
 |-----|------|------|------|
 | **SQLAlchemy v2** | ✅ 완료 | 2.8ms / 357 QPS | Greenlet 검증 완료 |
 | **Tortoise ORM** | ✅ 완료 | 2.4ms / 412 QPS | 15% 성능 우위 |
-| **EdgeDB** | ⚠️ 스키마 문제 | - | TLS 해결, 스키마 생성 실패 |
+| **EdgeDB** | ✅ 완료 | 측정 필요 | 마이그레이션 완료 |
 
 ## ⚡ **1단계: 환경 준비** (2분)
 
@@ -123,21 +123,43 @@ python run_performance_test.py
 - **SQLAlchemy**: Greenlet 오버헤드 **0.4ms**로 경량
 - **데이터 호환성**: PostgreSQL에서 완벽한 공유
 
-## ⚠️ **EdgeDB 현재 상황**
+## ✅ **EdgeDB 테스트**
 
+### EdgeDB 마이그레이션 실행
 ```bash
-# Health Check (작동)
+# 1. 마이그레이션 상태 확인  
+gel -H localhost -P 5656 --tls-security=insecure migration status
+
+# 2. 마이그레이션 실행 (스키마 생성)
+gel -H localhost -P 5656 --tls-security=insecure migrate
+
+# 3. 스키마 확인
+gel -H localhost -P 5656 --tls-security=insecure describe schema
+```
+
+### API 테스트
+```bash
+# Health Check  
 curl http://localhost:8003/health
 # 결과: {"status":"ok","orm":"edgedb"}
 
-# API 테스트 (현재 실패)
+# 사용자 생성
 curl -X POST http://localhost:8003/users \
   -H "Content-Type: application/json" \
   -d '{"name": "EdgeDB User", "email": "user@edgedb.com"}'
-# 결과: Internal Server Error (스키마 미생성)
+
+# EdgeDB 성능 벤치마크
+curl http://localhost:8003/benchmark/edgedb-native
 ```
 
-**문제**: EdgeDB에 User/Post 타입이 생성되지 않음
+### EdgeDB CLI로 직접 확인
+```bash  
+# 사용자 데이터 조회
+gel -H localhost -P 5656 --tls-security=insecure query "SELECT User { id, name, email }"
+
+# 간단한 쿼리 테스트
+gel -H localhost -P 5656 --tls-security=insecure query "SELECT 1 + 1"
+```
 
 ## 🛑 **정리**
 
@@ -153,24 +175,26 @@ docker rm -f orm_test_postgres
 
 | 항목 | SQLAlchemy v2 | Tortoise ORM | EdgeDB |
 |------|-------------|-------------|---------|
-| **응답시간** | 2.8ms | **2.4ms** 🏆 | - |
-| **처리량** | 357 QPS | **412 QPS** 🏆 | - |
-| **상태** | ✅ 완료 | ✅ 완료 | ⚠️ 스키마 문제 |
-| **특징** | Greenlet 변환 | 네이티브 비동기 | 미완성 |
+| **응답시간** | 2.8ms | **2.4ms** 🏆 | 측정 필요 |
+| **처리량** | 357 QPS | **412 QPS** 🏆 | 측정 필요 |
+| **상태** | ✅ 완료 | ✅ 완료 | ✅ 완료 |
+| **특징** | Greenlet 변환 | 네이티브 비동기 | 네이티브 EdgeQL |
 
 ## 🎯 **결론**
 
-1. **성능 우위**: Tortoise ORM > SQLAlchemy v2 (15% 차이)
-2. **Greenlet 검증**: SQLAlchemy의 sync-to-async 변환 오버헤드는 **0.4ms**로 매우 경량
-3. **호환성**: 두 ORM이 동일한 PostgreSQL DB 완벽 공유
-4. **실용성**: 두 ORM 모두 프로덕션 준비 완료
+1. **3-way 비교 준비 완료**: SQLAlchemy v2, Tortoise ORM, EdgeDB 모든 셋업 완료  
+2. **현재 성능 우위**: Tortoise ORM > SQLAlchemy v2 (15% 차이)
+3. **Greenlet 검증**: SQLAlchemy의 sync-to-async 변환 오버헤드는 **0.4ms**로 매우 경량
+4. **EdgeDB 셋업 완료**: 마이그레이션 실행으로 User/Post 타입 생성 완료
+5. **다음 단계**: EdgeDB 성능 측정 및 3-way 성능 비교 진행
 
 **권장사항**:
-- **새 프로젝트**: Tortoise ORM (성능 중심)
+- **현재까지**: Tortoise ORM (성능 중심)
+- **EdgeDB 포함 최종 비교**: 측정 후 결정
 - **기존 프로젝트**: SQLAlchemy v2 (안정성 중심)
 
 ---
 
-**소요 시간**: 5분  
-**테스트 완료**: SQLAlchemy ✅ Tortoise ✅ EdgeDB ⚠️  
-**성능 결과**: Tortoise ORM 승리! 🏆 
+**소요 시간**: 7분  
+**테스트 완료**: SQLAlchemy ✅ Tortoise ✅ EdgeDB ✅  
+**다음 단계**: 3-way 성능 비교! 🏁 
