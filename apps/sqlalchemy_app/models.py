@@ -1,25 +1,33 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
-from .database import Base
+from __future__ import annotations
+
+from typing import List
+from sqlalchemy import String, Text, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+class Base(DeclarativeBase):
+    """SQLAlchemy v2 DeclarativeBase"""
+    pass
+
 
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False, index=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     
     # Relationship
-    posts = relationship("Post", back_populates="user")
+    posts: Mapped[List[Post]] = relationship(back_populates="user", lazy="selectin")
+
 
 class Post(Base):
     __tablename__ = "posts"
     
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), nullable=False, index=True)
-    content = Column(Text, nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     
     # Relationship
-    user = relationship("User", back_populates="posts") 
+    user: Mapped[User] = relationship(back_populates="posts") 

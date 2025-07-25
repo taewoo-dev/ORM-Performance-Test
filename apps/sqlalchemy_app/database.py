@@ -1,6 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.pool import StaticPool
+from __future__ import annotations
+
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 import os
 
 # Database URL - PostgreSQL 사용
@@ -14,18 +14,15 @@ engine = create_async_engine(
     echo=False,  # SQL 로깅 비활성화 (성능 테스트를 위해)
 )
 
-# AsyncSession 설정
-AsyncSessionLocal = sessionmaker(
-    engine, 
-    class_=AsyncSession, 
+# AsyncSession 설정 (SQLAlchemy v2 스타일)
+AsyncSessionLocal = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Base 클래스
-Base = declarative_base()
-
 # Dependency: 데이터베이스 세션 가져오기
-async def get_db():
+async def get_db() -> AsyncSession:
     async with AsyncSessionLocal() as session:
         try:
             yield session
