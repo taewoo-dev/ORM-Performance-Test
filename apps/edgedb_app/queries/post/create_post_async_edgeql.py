@@ -9,7 +9,7 @@ import uuid
 from typing import cast
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class CreatePostResult:
     id: uuid.UUID
     title: str
@@ -17,7 +17,7 @@ class CreatePostResult:
     user: CreatePostResultUser
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class CreatePostResultUser:
     id: uuid.UUID
 
